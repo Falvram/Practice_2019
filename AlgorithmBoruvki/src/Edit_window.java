@@ -10,7 +10,7 @@ public class Edit_window extends JFrame{
     private JButton deleteGraph = new JButton("Удалить граф");
     private JButton saveGraph = new JButton("Сохранить граф");
     private JButton addData = new JButton("Добавить");
-    private JLabel label = new JLabel("Откуда:        Куда:        Вес ребра:");
+    private JLabel label = new JLabel("Откуда:        Куда:       Вес ребра:");
     private JTextArea listData = new JTextArea(); //список добавленных вершин и рёбер
     private JTextField inputLine = new JTextField("",3);
     private JPanel editPanel = new JPanel(); //окно редактирования
