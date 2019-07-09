@@ -8,7 +8,11 @@ public class Graph {
     public Graph(){
         incEdges = new HashMap<Integer, LinkedList<Edge>>();
     }
-
+    public void clear(){
+        V = 0;
+        E = 0;
+        incEdges = new HashMap<Integer, LinkedList<Edge>>();
+    }
     public int V(){ return V; }
     public int E(){ return E; }
     public void addEdge(Edge e) {
@@ -33,15 +37,27 @@ public class Graph {
     public void removeEdge(Edge e) {
         E--;
         incEdges.get(e.first()).remove(e);
-        if(incEdges.get(e.first()) == null){ V--; }
+        if(incEdges.get(e.first()).size() == 0){
+            V--;
+            incEdges.remove(e.first());
+        }
         incEdges.get(e.second(e.first())).remove(e);
-        if(incEdges.get(e.second(e.first())) == null){ V--; }
+        if(incEdges.get(e.second(e.first())).size() == 0){
+            V--;
+            incEdges.remove(e.second(e.first()));
+        }
     }
     public void removeVertex(int v){
-        for(Edge k : incEdges.get(v)) {
-            removeEdge(k);
+        int size = incEdges.get(v).size();
+        if(size != 0) {
+            for (int i = incEdges.get(v).size() - 1; i >= 0; i--) {
+                removeEdge(incEdges.get(v).get(i));
+            }
+        } else{
+            V--;
+            incEdges.remove(v);
         }
-        incEdges.remove(v);
+
     }
     public LinkedList<Edge> incEdges(int v){
         LinkedList<Edge> a = new LinkedList<Edge>();
