@@ -1,29 +1,33 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.LinkedList;
 import javax.swing.*;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import java.io.*;
 
 public class Main_window extends JFrame{
     private JButton editButton = new JButton("Редактирование графа"); //кнопка
     private JButton moveForward = new JButton("Вперёд");
     private JButton moveBackward = new JButton("Назад");
-
     private JButton moveToEnd = new JButton("До конца");
     private JButton saveButton = new JButton("Сохранить результат в файл");
     private JButton exitButton = new JButton("Завершить работу");
     private JTextArea logging = new JTextArea(); //вывод логов
     private JPanel rootPanel = new JPanel(); //основное рабочее окно
-    private JPanel graphPanel = new JPanel(); //окно построения графа
+    private GraphVizualizer graphPanel = new GraphVizualizer(); //окно построения графа
+    private AlgorithmBoruvki algorithm = null;
+    public Graph graph = new Graph();
 
-    private static final double WIDTH = 1230;
-    private static final double HEIGHT = 925;
+    public static final double WIDTH = 1230;
+    public static final double HEIGHT = 925;
+    public static double coeff;
     //?? для визуализации графа окно
 
     public Main_window () {
         super("Главное окно");
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        double coeff =  0.8*screenSize.height / HEIGHT;
+        coeff =  0.8*screenSize.height / HEIGHT;
         setBounds((int)((screenSize.width - WIDTH*coeff)/2),
                 (int)((screenSize.height - HEIGHT*coeff)/2) ,
                 (int)(WIDTH*coeff),(int)(HEIGHT*coeff)); //размер окна
@@ -94,19 +98,53 @@ public class Main_window extends JFrame{
         //добавление действий
         editButton.addActionListener(new edit_button_event());
         moveForward.addActionListener(e ->{
-            String message = "Выбрано движение алгоритма вперёд";
-            JOptionPane.showMessageDialog(null, message, "Output", JOptionPane.PLAIN_MESSAGE);
-            moveBackward.setEnabled(true);
-            editButton.setEnabled(false);
-            //тут будет действие, после его завершения кнопки вернут свои атрибуты
+            if(graph.V() != 0) {
+                if (algorithm == null) {
+                    algorithm = new AlgorithmBoruvki(graph);
+                }
+                LinkedList<Edge> tmp = algorithm.nextStep();
+                graphPanel.setMSTEdges(tmp);
+                if (tmp.size() == graph.V() - 1) {
+                    moveForward.setEnabled(false);
+                    moveToEnd.setEnabled(false);
+                }
+                moveBackward.setEnabled(true);
+                logging.append("Итерация алгоритма Борувки №" + algorithm.getIteration() + '\n'
+                        + "Добавлены следующие ребра:\n");
+                for (Edge edge : algorithm.deletedEdges()) {
+                    logging.append(edge.toString() + '\n');
+                }
+            }
         });
-        moveBackward.addActionListener(new move_backward_event());
+        moveBackward.addActionListener(e-> {
+            logging.append("Откат до итерации алгоритма Борувки №" + (algorithm.getIteration() - 1) + '\n'
+                    + "Удалены следующие ребра:\n");
+            for (Edge edge : algorithm.deletedEdges()) {
+                logging.append(edge.toString() + '\n');
+            }
+            LinkedList<Edge> tmp = algorithm.previousStep();
+            graphPanel.setMSTEdges(tmp);
+            if (algorithm.getIteration() == 0) {
+                moveBackward.setEnabled(false);
+            }
+            moveForward.setEnabled(true);
+            moveToEnd.setEnabled(true);
+        });
         moveToEnd.addActionListener(e -> {
-            String message = "Выбрано движение до конца алгоритма";
-            JOptionPane.showMessageDialog(null, message, "Output", JOptionPane.PLAIN_MESSAGE);
-            for(int i = 0; i < 1000; i++) {
-                logging.append("Hello =)\n");
-                logging.append("I'm logging\n");
+            if(graph.V() != 0) {
+                if (algorithm == null) {
+                    algorithm = new AlgorithmBoruvki(graph);
+                }
+                LinkedList<Edge> tmp = algorithm.lastStep();
+                graphPanel.setMSTEdges(tmp);
+                moveForward.setEnabled(false);
+                logging.append("Итерация алгоритма Борувки №" + algorithm.getIteration() + '\n'
+                        + "Добавлены следующие ребра:\n");
+                for (Edge edge : tmp) {
+                    logging.append(edge.toString() + '\n');
+                }
+                moveBackward.setEnabled(true);
+                moveToEnd.setEnabled(false);
             }
         });
         saveButton.addActionListener(new save_button_event());
@@ -125,25 +163,54 @@ public class Main_window extends JFrame{
             }
         });
     }
-
     class edit_button_event implements ActionListener {
         public void actionPerformed (ActionEvent e) {
-            Edit_window editPanel = new Edit_window(rootPanel);
+            Edit_window editPanel = new Edit_window(rootPanel, graph, graphPanel);
             editPanel.setVisible(true);
         }
     }
-
-    class move_backward_event implements ActionListener {
-        public void actionPerformed (ActionEvent e) {
-            String message = "Выбрано движение алгоритма назад";
-            JOptionPane.showMessageDialog(null, message, "Output", JOptionPane.PLAIN_MESSAGE);
-        }
-    }
-
     class save_button_event implements ActionListener {
         public void actionPerformed (ActionEvent e) {
-            String message = "Выбрано сохранение результата";
-            JOptionPane.showMessageDialog(null, message, "Output", JOptionPane.PLAIN_MESSAGE);
+            if(algorithm == null){
+                JOptionPane.showMessageDialog(Main_window.this,
+                        "Запустите выполнение алгоритма кнопкой\nДо конца или Вперед!" );
+                return;
+            }
+            File result = new File("./", "Result.txt");
+            if(result.exists()) {
+                result.delete();
+            }
+            try {
+                result.createNewFile();
+            }
+            catch (IOException ex) {
+                JOptionPane.showMessageDialog(Main_window.this,
+                        "Не удалось открыть файл!" );
+                return;
+            }
+            try(BufferedWriter writerResult = new BufferedWriter(new FileWriter(result)))
+            {
+                writerResult.write("Для графа:");
+                writerResult.newLine();
+                for (Edge edge : graph.edges()) {
+                    writerResult.write(edge.toString());
+                    writerResult.newLine();
+                }
+                writerResult.write("Построено минимальное остовное дерево с помошью алгоритма Борувки:");
+                writerResult.newLine();
+                for (Edge edge : algorithm.edges()) {
+                    writerResult.write(edge.toString());
+                    writerResult.newLine();
+                }
+                writerResult.flush();
+            }
+            catch(IOException ex){
+                JOptionPane.showMessageDialog(Main_window.this,
+                        "Не удалось записать в файл!" );
+                return;
+            }
+            JOptionPane.showMessageDialog(Main_window.this,
+                    "Результат успешно сохранен в файл result.txt!" );
         }
     }
 
