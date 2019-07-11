@@ -81,7 +81,7 @@ public class AlgorithmBoruvkiTest {
         catch (IOException ioexc) {
             return;
         }
-        //assertEquals(expect, answer);
+        assertEquals(expect, answer);
     }
 
     @Test
