@@ -8,23 +8,24 @@ public class Graph {
     public Graph(){
         incEdges = new HashMap<Integer, LinkedList<Edge>>();
     }
-
     public void clear(){
         V = 0;
         E = 0;
         incEdges = new HashMap<Integer, LinkedList<Edge>>();
     }
-
-    public int V() {
-        return V;
-    }
-
-    public int E() {
-        return E;
-    }
-
+    public int V(){ return V; }
+    public int E(){ return E; }
     public void addEdge(Edge e) {
-        E++;
+        boolean isExists = false;
+        for(Edge edge : edges()){
+            if(edge.isEqual(e)){
+                isExists = true;
+                break;
+            }
+        }
+        if(!isExists){
+            E++;
+        }
         if(incEdges.containsKey(e.first())) {
             incEdges.get(e.first()).add(e);
         }
@@ -42,8 +43,17 @@ public class Graph {
             incEdges.get(e.second(e.first())).add(e);
         }
     }
-
     public void removeEdge(Edge e) {
+        boolean isExists = false;
+        for(Edge edge : edges()){
+            if(edge.isEqual(e)){
+                isExists = true;
+                break;
+            }
+        }
+        if(!isExists){
+            return;
+        }
         E--;
         incEdges.get(e.first()).remove(e);
         if(incEdges.get(e.first()).size() == 0){
@@ -56,8 +66,10 @@ public class Graph {
             incEdges.remove(e.second(e.first()));
         }
     }
-
     public void removeVertex(int v){
+        if(incEdges.get(v) == null){
+            return;
+        }
         int size = incEdges.get(v).size();
         if(size != 0) {
             for (int i = incEdges.get(v).size() - 1; i >= 0; i--) {
@@ -69,7 +81,6 @@ public class Graph {
         }
 
     }
-
     public LinkedList<Edge> incEdges(int v){
         LinkedList<Edge> a = new LinkedList<Edge>();
         for(Edge e : incEdges.get(v)) {
@@ -77,7 +88,6 @@ public class Graph {
         }
         return a;
     }
-
     public LinkedList<Edge> edges(){
         LinkedList<Edge> a = new LinkedList<Edge>();
         for(int v : incEdges.keySet()){
@@ -89,7 +99,6 @@ public class Graph {
         }
         return a;
     }
-
     public LinkedList<Integer> vertexes() {
         LinkedList<Integer> a = new LinkedList<Integer>();
         for(int v : incEdges.keySet()){
@@ -97,7 +106,6 @@ public class Graph {
         }
         return a;
     }
-
     public String toString(){
         String str = "";
         for(Edge e: edges()){
