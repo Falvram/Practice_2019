@@ -110,13 +110,11 @@ public class GraphVizualizer extends JPanel {
         @Override
         public void mouseDragged(MouseEvent e) {
             if(indexOfSelectedVertex != null){
-                Ellipse2D.Double tmp = new Ellipse2D.Double(coordsOfVerteces.get(indexOfSelectedVertex).x - 25, coordsOfVerteces.get(indexOfSelectedVertex).y - 25, 25, 25);
                 Coordinates crd = new Coordinates(e.getX()+10,e.getY());
                 if(crd.x<20) crd.x = 20;
                 if(crd.y<20) crd.y = 20;
                 if(crd.x>(int)(650 * Main_window.coeff)) crd.x = (int)(650 * Main_window.coeff);
                 if(crd.y>(int)(725 * Main_window.coeff)) crd.y = (int)(725 * Main_window.coeff);
-                tmp.setFrame(crd.x-20, crd.y-10,30,30);
                 coordsOfVerteces.set(indexOfSelectedVertex, crd);
                 repaint();
             }
