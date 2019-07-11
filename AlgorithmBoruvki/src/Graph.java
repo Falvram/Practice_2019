@@ -8,13 +8,21 @@ public class Graph {
     public Graph(){
         incEdges = new HashMap<Integer, LinkedList<Edge>>();
     }
+
     public void clear(){
         V = 0;
         E = 0;
         incEdges = new HashMap<Integer, LinkedList<Edge>>();
     }
-    public int V(){ return V; }
-    public int E(){ return E; }
+
+    public int V() {
+        return V;
+    }
+
+    public int E() {
+        return E;
+    }
+
     public void addEdge(Edge e) {
         E++;
         if(incEdges.containsKey(e.first())) {
@@ -34,6 +42,7 @@ public class Graph {
             incEdges.get(e.second(e.first())).add(e);
         }
     }
+
     public void removeEdge(Edge e) {
         E--;
         incEdges.get(e.first()).remove(e);
@@ -47,6 +56,7 @@ public class Graph {
             incEdges.remove(e.second(e.first()));
         }
     }
+
     public void removeVertex(int v){
         int size = incEdges.get(v).size();
         if(size != 0) {
@@ -59,6 +69,7 @@ public class Graph {
         }
 
     }
+
     public LinkedList<Edge> incEdges(int v){
         LinkedList<Edge> a = new LinkedList<Edge>();
         for(Edge e : incEdges.get(v)) {
@@ -66,6 +77,7 @@ public class Graph {
         }
         return a;
     }
+
     public LinkedList<Edge> edges(){
         LinkedList<Edge> a = new LinkedList<Edge>();
         for(int v : incEdges.keySet()){
@@ -77,6 +89,7 @@ public class Graph {
         }
         return a;
     }
+
     public LinkedList<Integer> vertexes() {
         LinkedList<Integer> a = new LinkedList<Integer>();
         for(int v : incEdges.keySet()){
@@ -84,6 +97,7 @@ public class Graph {
         }
         return a;
     }
+
     public String toString(){
         String str = "";
         for(Edge e: edges()){

@@ -16,12 +16,12 @@ public class UnionFind {
         }
     }
 
-    public boolean isConnected(Graph G) {
-        LinkedList<Integer> listOfVertexes = G.vertexes();
-        for(Edge e : G.edges()) {
+    public boolean isConnected(Graph graph) {
+        LinkedList<Integer> listOfVertexes = graph.vertexes();
+        for(Edge e : graph.edges()) {
             union(listOfVertexes.indexOf(e.first()), listOfVertexes.indexOf(e.second(e.first())));
         }
-        if(count() != 1){
+        if(count() > 1){
             return false;
         } else {
             return true;
@@ -50,7 +50,6 @@ public class UnionFind {
         int rootQ = find(q);
         if (rootP == rootQ) return;
 
-        // make root of smaller rank point to root of larger rank
         if      (rank[rootP] < rank[rootQ]) parent[rootP] = rootQ;
         else if (rank[rootP] > rank[rootQ]) parent[rootQ] = rootP;
         else {
