@@ -2,6 +2,7 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.JPanel;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Scanner;
@@ -16,6 +17,7 @@ public class Edit_window extends JFrame{
     private JButton deleteGraph = new JButton("Удалить граф");
     private JButton saveGraph = new JButton("Сохранить граф");
     private JButton addData = new JButton("Добавить");
+    private JButton returnMainWindow = new JButton("Вернуться на главное окно");
     private JLabel labelFrom = new JLabel("Откуда:");
     private JLabel labelTo = new JLabel("Куда:");
     private JLabel labelWeight = new JLabel("Вес ребра:");
@@ -26,8 +28,8 @@ public class Edit_window extends JFrame{
     private JTextField inputLineWeight = new JTextField("",3);
     private JTextField inputLinePath = new JTextField("",3);
     private JPanel editPanel = new JPanel(); //окно редактирования
-    private int from;
-    private int to;
+    private int from = -1;
+    private int to = -1;
     private double weight;
 
     public Edit_window(JPanel parent, Graph graph, GraphVizualizer graphPanel) {
@@ -47,7 +49,6 @@ public class Edit_window extends JFrame{
         //добавление скроллбара
         final JScrollPane scrollPane = new JScrollPane(listData, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         inputLinePath.setEnabled(true);
-
         LinkedList<Edge> listOfEdges = graph.edges();//список ребер графа
         LinkedList<Integer> listOfVertexes = graph.vertexes();//список ребер графа
         //соответствующие наборы строк
@@ -63,40 +64,46 @@ public class Edit_window extends JFrame{
         for(int i = 0; i < graph.V(); i++){
             stringListOfVertexes[i] = listOfVertexes.get(i).toString();
         }
-
+        JButton[] buttonList = {readButton, saveGraph, removeEdge, removeVertex, deleteGraph, addData, returnMainWindow};
         edgeList = new JComboBox(stringListOfEdges);
         vertexList = new JComboBox(stringListOfVertexes);
-
         edgeList.setEditable(false);
         vertexList.setEditable(false);
-
         //стиль текста
         Font fontButton = new Font(null, 3, 16); //выбор шрифта
         Font fontList = new Font(null, 1, 14);
-        readButton.setFont(fontButton);
-        removeEdge.setFont(fontButton);
-        removeVertex.setFont(fontButton);
+        for(JButton button : buttonList){
+            button.setFont(fontButton);
+            button.setBackground(Color.cyan);
+            //установка рамок
+            button.setBorder(BorderFactory.createLineBorder(Color.gray,2));
+            //убрать выделение вокруг текста кнопки
+            button.setFocusPainted(false);
+            editPanel.add(button);
+        }
+        JLabel[] labelList = {labelFrom, labelPath, labelTo, labelWeight};
+        for(JLabel label : labelList){
+            label.setFont(fontButton);
+            label.setBackground(Color.gray);
+            label.setForeground(Color.white);
+            editPanel.add(label);
+        }
+        JTextField[] textList = {inputLineFrom, inputLinePath, inputLineTo, inputLineWeight};
+        for(JTextField textField : textList){
+            textField.setFont(fontList);
+            textField.setBackground(Color.gray);
+            textField.setForeground(Color.white);
+            editPanel.add(textField);
+        }
         edgeList.setFont(fontList);
         vertexList.setFont(fontList);
-        deleteGraph.setFont(fontButton);
-        saveGraph.setFont(fontButton);
-        addData.setFont(fontButton);
         listData.setFont(fontList);
-        labelFrom.setFont(fontButton);
-        labelTo.setFont(fontButton);
-        labelWeight.setFont(fontButton);
-        labelPath.setFont(fontButton);
-        inputLineFrom.setFont(fontList);
-        inputLineTo.setFont(fontList);
-        inputLineWeight.setFont(fontList);
-        inputLinePath.setFont(fontList);
         //размеры кнопок
         readButton.setBounds((int)(10*Main_window.coeff),(int)(190*Main_window.coeff),(int)(740*Main_window.coeff),(int)(50*Main_window.coeff));
         edgeList.setBounds((int)(10*Main_window.coeff),(int)(260*Main_window.coeff),(int)(350*Main_window.coeff),(int)(50*Main_window.coeff));
         vertexList.setBounds((int)(400*Main_window.coeff),(int)(260*Main_window.coeff),(int)(350*Main_window.coeff),(int)(50*Main_window.coeff));
         removeEdge.setBounds((int)(10*Main_window.coeff),(int)(330*Main_window.coeff),(int)(350*Main_window.coeff),(int)(50*Main_window.coeff));
         removeVertex.setBounds((int)(400*Main_window.coeff),(int)(330*Main_window.coeff),(int)(350*Main_window.coeff),(int)(50*Main_window.coeff));
-
         deleteGraph.setBounds((int)(10*Main_window.coeff),(int)(400*Main_window.coeff),(int)(740*Main_window.coeff),(int)(50*Main_window.coeff));
         saveGraph.setBounds((int)(10*Main_window.coeff),(int)(470*Main_window.coeff),(int)(740*Main_window.coeff),(int)(50*Main_window.coeff));
         addData.setBounds((int)(400*Main_window.coeff),(int)(50*Main_window.coeff),(int)(350*Main_window.coeff),(int)(50*Main_window.coeff));
@@ -104,64 +111,22 @@ public class Edit_window extends JFrame{
         labelTo.setBounds((int)(130*Main_window.coeff),(int)(5*Main_window.coeff),(int)(110*Main_window.coeff),(int)(50*Main_window.coeff));
         labelWeight.setBounds((int)(250*Main_window.coeff),(int)(5*Main_window.coeff),(int)(120*Main_window.coeff),(int)(50*Main_window.coeff));
         labelPath.setBounds((int)(10*Main_window.coeff),(int)(120*Main_window.coeff),(int)(200*Main_window.coeff),(int)(50*Main_window.coeff));
-        scrollPane.setBounds((int)(790*Main_window.coeff),(int)(50*Main_window.coeff),(int)(410*Main_window.coeff),(int)(470*Main_window.coeff));
+        scrollPane.setBounds((int)(790*Main_window.coeff),(int)(50*Main_window.coeff),(int)(410*Main_window.coeff),(int)(540*Main_window.coeff));
         inputLineFrom.setBounds((int)(10*Main_window.coeff),(int)(50*Main_window.coeff),(int)(110*Main_window.coeff),(int)(50*Main_window.coeff));
         inputLineTo.setBounds((int)(130*Main_window.coeff),(int)(50*Main_window.coeff),(int)(110*Main_window.coeff),(int)(50*Main_window.coeff));
         inputLineWeight.setBounds((int)(250*Main_window.coeff),(int)(50*Main_window.coeff),(int)(110*Main_window.coeff),(int)(50*Main_window.coeff));
         inputLinePath.setBounds((int)(200*Main_window.coeff),(int)(120*Main_window.coeff),(int)(550*Main_window.coeff),(int)(50*Main_window.coeff));
+        returnMainWindow.setBounds((int)(10*Main_window.coeff),(int)(540*Main_window.coeff),(int)(740*Main_window.coeff),(int)(50*Main_window.coeff));
         //Цвета полей
         editPanel.setBackground(Color.darkGray);
         listData.setBackground(Color.gray);
-        inputLineFrom.setBackground(Color.gray);
-        inputLineTo.setBackground(Color.gray);
-        inputLineWeight.setBackground(Color.gray);
-        inputLinePath.setBackground(Color.gray);
-        readButton.setBackground(Color.cyan);
         edgeList.setBackground(Color.gray);
         vertexList.setBackground(Color.gray);
-        removeEdge.setBackground(Color.cyan);
-        removeVertex.setBackground(Color.cyan);
-        deleteGraph.setBackground(Color.cyan);
-        saveGraph.setBackground(Color.cyan);
-        addData.setBackground(Color.cyan);
-        inputLinePath.setForeground(Color.white);
         listData.setForeground(Color.white);
-        labelFrom.setForeground(Color.white);
-        labelTo.setForeground(Color.white);
-        labelWeight.setForeground(Color.white);
-        labelPath.setForeground(Color.white);
-        //установка рамок
-        readButton.setBorder(BorderFactory.createLineBorder(Color.gray,2));
-        removeEdge.setBorder(BorderFactory.createLineBorder(Color.gray,2));
-        removeVertex.setBorder(BorderFactory.createLineBorder(Color.gray,2));
-        deleteGraph.setBorder(BorderFactory.createLineBorder(Color.gray,2));
-        saveGraph.setBorder(BorderFactory.createLineBorder(Color.gray,2));
-        addData.setBorder(BorderFactory.createLineBorder(Color.gray,2));
-        //убрать выделение вокруг текста кнопки
-        readButton.setFocusPainted(false);
-        removeEdge.setFocusPainted(false);
-        removeVertex.setFocusPainted(false);
-        deleteGraph.setFocusPainted(false);
-        saveGraph.setFocusPainted(false);
-        addData.setFocusPainted(false);
         //добавление объектов на панель
-        editPanel.add(readButton);
-        editPanel.add(labelPath);
-        editPanel.add(inputLinePath);
-        editPanel.add(removeEdge);
-        editPanel.add(removeVertex);
         editPanel.add(edgeList);
         editPanel.add(vertexList);
-        editPanel.add(deleteGraph);
-        editPanel.add(saveGraph);
-        editPanel.add(addData);
-        editPanel.add(labelFrom);
-        editPanel.add(labelTo);
-        editPanel.add(labelWeight);
         editPanel.add(scrollPane);
-        editPanel.add(inputLineFrom);
-        editPanel.add(inputLineTo);
-        editPanel.add(inputLineWeight);
         //добавление действий
         inputLinePath.addActionListener(e->{
             Graph tmp0 = new Graph();
@@ -180,142 +145,69 @@ public class Edit_window extends JFrame{
                         "При считывании возникла ошибка." );
                 return;
             }
-            for(String k : edges){
-                try (Scanner s = new Scanner(k)) {
-                    int args[] = new int[2];
-                    double weight;
-                    for(int count = 0; count<2 ;count++) {
-                        if (s.hasNextInt()) {
-                            args[count] = s.nextInt();
-                            if(args[count] < 0){
-                                throw new Exception();
-                            }
-                        } else {
-                            throw new Exception();
-                        }
-                    }
-                    if(s.hasNextDouble()){
-                        weight = s.nextDouble();
-                        if(weight <= 0){
-                            throw new Exception();
-                        }
-                    } else {
-                        throw new Exception();
-                    }
-                    if(s.hasNext()){
-                        throw new Exception();
-                    }
-                    Edge tmp = new Edge(args[0], args[1], weight);
-                    tmp0.addEdge(tmp);
-
-                }
-                catch(Exception exc){
-                    JOptionPane.showMessageDialog(Edit_window.this,
-                            "Проверьте правильность данных в файле" );
-                    inputLinePath.setText("");
-                    return;
-                }
-            }
-            graph.clear();
-            edgeList.removeAllItems();
-            listOfEdges.clear();
-            vertexList.removeAllItems();
-            listOfVertexes.clear();
-            listData.append("Исходный граф удален\n");
-            for(Edge edge : tmp0.edges()) {
-                graph.addEdge(edge);
-                edgeList.addItem(edge.toString());
-                listOfEdges.add(edge);
-                listData.append("Добавлено ребро " + edge.toString() + '\n');
-                if (listOfVertexes.indexOf(edge.first()) == -1) {
-                    listOfVertexes.add(edge.first());
-                    vertexList.addItem("" + edge.first());
-                }
-                if (listOfVertexes.indexOf(edge.second(edge.first())) == -1) {
-                    listOfVertexes.add(edge.second(edge.first()));
-                    vertexList.addItem("" + edge.second(edge.first()));
-                }
-            }
-            JOptionPane.showMessageDialog(Edit_window.this,
-                    "Граф считан" );
-            inputLinePath.setText("");
+            reloadGraph(edges, graph, listOfEdges, listOfVertexes);
         });
         readButton.addActionListener(e->{
-            Graph tmp0 = new Graph();
             String path = inputLinePath.getText();
             ArrayList<String> edges = new ArrayList<String>();
-            try{
-                FileInputStream fstream = new FileInputStream(path);
-                BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
-                String str;
-                while ((str = br.readLine()) != null){
-                    edges.add(str);
+            if(!path.isEmpty()) {
+                try {
+                    FileInputStream fstream = new FileInputStream(path);
+                    BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
+                    String str;
+                    while ((str = br.readLine()) != null) {
+                        edges.add(str);
+                    }
                 }
-            }
-            catch (IOException ioexc){
-                JOptionPane.showMessageDialog(Edit_window.this,
-                        "При считывании возникла ошибка." );
-                return;
-            }
-            for(String k : edges){
-                try (Scanner s = new Scanner(k)) {
-                    int args[] = new int[2];
-                    double weight;
-                    for(int count = 0; count<2 ;count++) {
-                        if (s.hasNextInt()) {
-                            args[count] = s.nextInt();
-                            if(args[count] < 0){
-                                throw new Exception();
-                            }
-                        } else {
-                            throw new Exception();
-                        }
-                    }
-                    if(s.hasNextDouble()){
-                        weight = s.nextDouble();
-                        if(weight <= 0){
-                            throw new Exception();
-                        }
-                    } else {
-                        throw new Exception();
-                    }
-                    if(s.hasNext()){
-                        throw new Exception();
-                    }
-                    Edge tmp = new Edge(args[0], args[1], weight);
-                    tmp0.addEdge(tmp);
-
-                }
-                catch(Exception exc){
+                catch (IOException ioexc) {
                     JOptionPane.showMessageDialog(Edit_window.this,
-                            "Проверьте правильность данных в файле" );
-                    inputLinePath.setText("");
+                            "При считывании возникла ошибка.");
+                    return;
+                }
+            } else {
+                try {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(Edit_window.this,
+                            "Forbidden.");
+                    return;
+                }
+
+                JFileChooser fd = new JFileChooser(new File(".").getAbsolutePath()); //дилоговое окно
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
+                fd.setFileFilter(filter);
+                fd.setAcceptAllFileFilterUsed(false);
+
+                int ret = fd.showDialog(null,"Выбор файла");
+                if (ret == JFileChooser.APPROVE_OPTION) {
+                    File file = fd.getSelectedFile(); //получение выбранного файла
+                    try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+                        String str;
+                        while ((str = br.readLine()) != null) {
+                            edges.add(str);
+                        }
+                    }
+                    catch(IOException ex){
+                        JOptionPane.showMessageDialog(Edit_window.this,
+                                "При считывании возникла ошибка.");
+                        return;
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(Edit_window.this,
+                            "Операция отменена.");
+                    return;
+                }
+                try {
+                    UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                }
+                catch (Exception ex){
+                    JOptionPane.showMessageDialog(Edit_window.this,
+                            "Forbidden.");
                     return;
                 }
             }
-            graph.clear();
-            edgeList.removeAllItems();
-            listOfEdges.clear();
-            vertexList.removeAllItems();
-            listOfVertexes.clear();
-            listData.append("Исходный граф удален\n");
-            for(Edge edge : tmp0.edges()) {
-                graph.addEdge(edge);
-                edgeList.addItem(edge.toString());
-                listOfEdges.add(edge);
-                listData.append("Добавлено ребро " + edge.toString() + '\n');
-                if (listOfVertexes.indexOf(edge.first()) == -1) {
-                    listOfVertexes.add(edge.first());
-                    vertexList.addItem("" + edge.first());
-                }
-                if (listOfVertexes.indexOf(edge.second(edge.first())) == -1) {
-                    listOfVertexes.add(edge.second(edge.first()));
-                    vertexList.addItem("" + edge.second(edge.first()));
-                }
-            }
-            JOptionPane.showMessageDialog(Edit_window.this,
-                    "Граф считан" );
-            inputLinePath.setText("");
+            reloadGraph(edges, graph, listOfEdges, listOfVertexes);
         });
         removeEdge.addActionListener(e->{
             int index = edgeList.getSelectedIndex();
@@ -402,95 +294,78 @@ public class Edit_window extends JFrame{
             listData.append("Граф удален\n");
         });
         saveGraph.addActionListener(e -> {
-            File graphWrite = new File("./", "Graph.txt");
-            if(graphWrite.exists()) {
-                graphWrite.delete();
-            }
             try {
-                graphWrite.createNewFile();
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
-            catch (IOException ex) {
+            catch (Exception ex){
                 JOptionPane.showMessageDialog(Edit_window.this,
-                        "Не удалось открыть файл!" );
+                        "Forbidden.");
                 return;
             }
-            try(BufferedWriter  writerGraph = new BufferedWriter( new FileWriter(graphWrite)))
-            {
-                for (Edge edge : listOfEdges) {
-                    writerGraph.write(String.format("%d %d %.1f", edge.first(), edge.second(edge.first()), edge.weight()));
-                    writerGraph.newLine();
+            JFileChooser fd = new JFileChooser(new File(".").getAbsolutePath()); //дилоговое окно
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(".txt", "txt", "text");
+            fd.setFileFilter(filter);
+            fd.setAcceptAllFileFilterUsed(false);
+
+            int ret = fd.showDialog(null,"Выбор файла");
+            if (ret == JFileChooser.APPROVE_OPTION) {
+                File graphWrite = fd.getSelectedFile(); //получение выбранного файла
+                File save;
+                StringBuilder str = new StringBuilder(graphWrite.getPath());
+                String newStr = str.substring(0, str.lastIndexOf(graphWrite.getName()));
+                int index = graphWrite.getName().lastIndexOf(".");
+                if(index == -1) {
+                    save = new File(newStr,
+                            graphWrite.getName() + ".txt");
+                } else {
+                    save = new File(newStr,
+                            graphWrite.getName().substring(0, index) + ".txt");
                 }
-                writerGraph.flush();
-                writerGraph.close();
-            }
-            catch(IOException ex){
+                if (graphWrite.exists()) {
+                    graphWrite.delete();
+                }
+                try {
+                    graphWrite.renameTo(save);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(Edit_window.this,
+                            "Не удалось открыть файл!");
+                    return;
+                }
+                try(BufferedWriter  writerGraph = new BufferedWriter( new FileWriter(save)))
+                {
+                    for (Edge edge : listOfEdges) {
+                        writerGraph.write(String.format("%d %d %.1f", edge.first(), edge.second(edge.first()), edge.weight()));
+                        writerGraph.newLine();
+                    }
+                    writerGraph.flush();
+                }
+                catch(IOException ex){
+                    JOptionPane.showMessageDialog(Edit_window.this,
+                            "Не удалось записать в файл!" );
+                    return;
+                }
                 JOptionPane.showMessageDialog(Edit_window.this,
-                        "Не удалось записать в файл!" );
+                        "Граф успешно сохранен в файл" );
+            }
+
+            try {
+                UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+            }
+            catch (Exception ex){
+                JOptionPane.showMessageDialog(Edit_window.this,
+                        "Forbidden.");
                 return;
             }
-            JOptionPane.showMessageDialog(Edit_window.this,
-                    "Граф успешно сохранен в файл Graph.txt" );
         });
         addData.addActionListener(e -> {
-            try (Scanner s = new Scanner(inputLineFrom.getText())) {
-                if (s.hasNextInt()) {
-                    from = s.nextInt();
-                    if (from < 0) {
-                        throw new Exception();
-                    }
-                } else {
-                    throw new Exception();
-                }
-                if (s.hasNext()) {
-                    throw new Exception();
-                }
-            }
-            catch(Exception exc) {
-                JOptionPane.showMessageDialog(Edit_window.this,
-                        "Проверьте правильность данных поля Откуда!");
-                return;
-            }
-            try (Scanner s = new Scanner(inputLineTo.getText())) {
-                if (s.hasNextInt()) {
-                    to = s.nextInt();
-                    if (to < 0) {
-                        throw new Exception();
-                    }
-                } else {
-                    throw new Exception();
-                }
-                if (s.hasNext()) {
-                    throw new Exception();
-                }
-            }
-            catch(Exception exc) {
-                JOptionPane.showMessageDialog(Edit_window.this,
-                        "Проверьте правильность данных поля Куда!");
-                return;
-            }
+            if(!readFrom()) return;
+            if(!readTo()) return;
             if(from == to){
                 JOptionPane.showMessageDialog(Edit_window.this,
                         "Вершины ребра совпадают!");
                 return;
             }
-            try (Scanner s = new Scanner(inputLineWeight.getText())) {
-                if (s.hasNextDouble()) {
-                    weight = s.nextDouble();
-                    if (weight <= 0) {
-                        throw new Exception();
-                    }
-                } else {
-                    throw new Exception();
-                }
-                if (s.hasNext()) {
-                    throw new Exception();
-                }
-            }
-            catch(Exception exc) {
-                JOptionPane.showMessageDialog(Edit_window.this,
-                        "Проверьте правильность данных поля Вес ребра!");
-                return;
-            }
+            if(!readWeight()) return;
             Edge tmp = new Edge(from, to, weight);
             boolean isExists = false;
             for(Edge edge : listOfEdges){
@@ -519,49 +394,19 @@ public class Edit_window extends JFrame{
                 inputLineTo.setText("");
                 inputLineWeight.setText("");
             }
+            from = to = -1;
         });
         inputLineFrom.addActionListener(e -> {
             // Отображение введенного текста
-            try (Scanner s = new Scanner(inputLineFrom.getText())) {
-                if (s.hasNextInt()) {
-                    from = s.nextInt();
-                    if (from < 0) {
-                        throw new Exception();
-                    }
-                } else {
-                    throw new Exception();
-                }
-                if (s.hasNext()) {
-                    throw new Exception();
-                }
-            }
-            catch(Exception exc) {
-                JOptionPane.showMessageDialog(Edit_window.this,
-                        "Проверьте правильность данных поля Откуда!");
-                return;
-            }
+            if(!readFrom()) return;
             inputLineTo.requestFocusInWindow();
         });
         inputLineTo.addActionListener(e -> {
             // Отображение введенного текста
-            try (Scanner s = new Scanner(inputLineTo.getText())) {
-                if (s.hasNextInt()) {
-                    to = s.nextInt();
-                    if (to < 0) {
-                        throw new Exception();
-                    }
-                } else {
-                    throw new Exception();
-                }
-                if (s.hasNext()) {
-                    throw new Exception();
-                }
+            if(from == -1) {
+                if(!readFrom()) return;
             }
-            catch(Exception exc) {
-                JOptionPane.showMessageDialog(Edit_window.this,
-                        "Проверьте правильность данных поля Куда!");
-                return;
-            }
+            if(!readTo()) return;
             if(from == to){
                 JOptionPane.showMessageDialog(Edit_window.this,
                         "Вершины ребра совпадают!");
@@ -571,24 +416,18 @@ public class Edit_window extends JFrame{
         });
         inputLineWeight.addActionListener(e -> {
             // Отображение введенного текста
-            try (Scanner s = new Scanner(inputLineWeight.getText())) {
-                if (s.hasNextDouble()) {
-                    weight = s.nextDouble();
-                    if (weight < 0) {
-                        throw new Exception();
-                    }
-                } else {
-                    throw new Exception();
-                }
-                if (s.hasNext()) {
-                    throw new Exception();
-                }
+            if(from == -1) {
+                if(!readFrom()) return;
             }
-            catch(Exception exc) {
+            if(to == -1) {
+                if(!readTo()) return;
+            }
+            if(from == to){
                 JOptionPane.showMessageDialog(Edit_window.this,
-                        "Проверьте правильность данных поля Вес ребра!");
+                        "Вершины ребра совпадают!");
                 return;
             }
+            if(!readWeight()) return;
             Edge tmp = new Edge(from, to, weight);
             boolean isExists = false;
             for(Edge edge : listOfEdges){
@@ -617,6 +456,27 @@ public class Edit_window extends JFrame{
                 inputLineTo.setText("");
                 inputLineWeight.setText("");
                 inputLineFrom.requestFocusInWindow();
+                from = to = -1;
+            }
+            from = to = -1;
+        });
+        returnMainWindow.addActionListener(e->{
+            UnionFind uf = new UnionFind(graph.V());
+            if(uf.isConnected(graph)){
+                String title = "Окно подтверждения";
+                UIManager.put("OptionPane.yesButtonText", "Да");
+                UIManager.put("OptionPane.noButtonText", "Нет");
+                int check = JOptionPane.showConfirmDialog(null, "Выйти из редактора?", title, JOptionPane.YES_NO_OPTION);
+                if (check == JOptionPane.YES_OPTION) {
+                    //действия по сохранению графа
+                    graphPanel.setGraph(graph);
+                    //graphPanel.setMST(graph);
+                    parent.setVisible(true);
+                    dispose();
+                }
+            } else {
+                JOptionPane.showMessageDialog(Edit_window.this,
+                        "Перед выходом сделайте граф связным" );
             }
         });
         addWindowListener(new WindowAdapter() {
@@ -642,5 +502,142 @@ public class Edit_window extends JFrame{
                 }
             }
         });
+    }
+    private boolean reloadGraph(ArrayList<String> edges, Graph graph, LinkedList<Edge> listOfEdges, LinkedList<Integer> listOfVertexes){
+        Graph tmp0 = new Graph();
+        for (String k : edges) {
+            try (Scanner s = new Scanner(k)) {
+                int args[] = new int[2];
+                double weight;
+                for (int count = 0; count < 2; count++) {
+                    if (s.hasNextInt()) {
+                        args[count] = s.nextInt();
+                        if (args[count] < 0) {
+                            throw new Exception();
+                        }
+                    } else {
+                        throw new Exception();
+                    }
+                }
+                if (s.hasNextDouble()) {
+                    weight = s.nextDouble();
+                    if (weight <= 0) {
+                        throw new Exception();
+                    }
+                } else {
+                    throw new Exception();
+                }
+                if (s.hasNext()) {
+                    throw new Exception();
+                }
+                Edge tmp = new Edge(args[0], args[1], weight);
+                boolean isExists = false;
+                for(Edge edge : tmp0.edges()){
+                    if(edge.isEqual(tmp)){
+                        isExists = true;
+                        break;
+                    }
+                }
+                if(isExists) {
+                    JOptionPane.showMessageDialog(Edit_window.this,
+                            "Встречены повторяющиеся ребра!");
+                    return false;
+                }
+                tmp0.addEdge(tmp);
+
+            } catch (Exception exc) {
+                JOptionPane.showMessageDialog(Edit_window.this,
+                        "Проверьте правильность данных в файле");
+                inputLinePath.setText("");
+                return false;
+            }
+        }
+        graph.clear();
+        edgeList.removeAllItems();
+        listOfEdges.clear();
+        vertexList.removeAllItems();
+        listOfVertexes.clear();
+        listData.append("Исходный граф удален\n");
+        for (Edge edge : tmp0.edges()) {
+            graph.addEdge(edge);
+            edgeList.addItem(edge.toString());
+            listOfEdges.add(edge);
+            listData.append("Добавлено ребро " + edge.toString() + '\n');
+            if (listOfVertexes.indexOf(edge.first()) == -1) {
+                listOfVertexes.add(edge.first());
+                vertexList.addItem("" + edge.first());
+            }
+            if (listOfVertexes.indexOf(edge.second(edge.first())) == -1) {
+                listOfVertexes.add(edge.second(edge.first()));
+                vertexList.addItem("" + edge.second(edge.first()));
+            }
+        }
+        JOptionPane.showMessageDialog(Edit_window.this,
+                "Граф считан");
+        inputLinePath.setText("");
+        return true;
+    }
+    private boolean readFrom(){
+        try (Scanner s = new Scanner(inputLineFrom.getText())) {
+            if (s.hasNextInt()) {
+                from = s.nextInt();
+                if (from < 0) {
+                    throw new Exception();
+                }
+            } else {
+                throw new Exception();
+            }
+            if (s.hasNext()) {
+                throw new Exception();
+            }
+        }
+        catch(Exception exc) {
+            JOptionPane.showMessageDialog(Edit_window.this,
+                    "Проверьте правильность данных поля Откуда!");
+            return false;
+        }
+        return true;
+    }
+    private  boolean readTo(){
+        try (Scanner s = new Scanner(inputLineTo.getText())) {
+            if (s.hasNextInt()) {
+                to = s.nextInt();
+                if (to < 0) {
+                    throw new Exception();
+                }
+            } else {
+                throw new Exception();
+            }
+            if (s.hasNext()) {
+                throw new Exception();
+            }
+        }
+        catch(Exception exc) {
+            JOptionPane.showMessageDialog(Edit_window.this,
+                    "Проверьте правильность данных поля Куда!");
+            return false;
+        }
+        return true;
+    }
+    private boolean readWeight(){
+        try (Scanner s = new Scanner(inputLineWeight.getText())) {
+            if (s.hasNextDouble()) {
+                weight = s.nextDouble();
+                if (weight <= 0) {
+                    throw new Exception();
+                }
+            } else {
+                throw new Exception();
+            }
+            if (s.hasNext()) {
+                throw new Exception();
+            }
+        }
+        catch(Exception exc) {
+            JOptionPane.showMessageDialog(Edit_window.this,
+                    "Проверьте правильность данных поля Вес ребра!");
+            return false;
+        }
+        return true;
     }
 }
