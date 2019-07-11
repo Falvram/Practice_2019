@@ -19,7 +19,7 @@ public class GraphVizualizer extends JPanel {
     public Integer indexOfSelectedVertex;
 
     public GraphVizualizer(){
-        setLayout(null);
+        setLayout(null); //абсолютное позиционирование - расположение файлов задается точно
         Font fontLogging = new Font(null, 1, 14);
         setFont(fontLogging);
     }
@@ -30,8 +30,9 @@ public class GraphVizualizer extends JPanel {
 
         listOfVerteces = graph.vertexes();
         listOfEdges = graph.edges();
+        listOfEdgesOfMSTStep = new LinkedList<>();
         coordsOfVerteces = new ArrayList<Coordinates>(graph.V());
-        arrangement();
+        arrangement(); //располложение
         revalidate();
         repaint();
     }
@@ -59,19 +60,19 @@ public class GraphVizualizer extends JPanel {
             graph_2d.draw(new Line2D.Double(from.x, from.y, to.x, to.y));
             //отображение веса ребер
             graph_2d.setColor(oldColor);
-            graph_2d.drawString(""+e.weight(), (to.x - from.x) * 2 / 5 + from.x, (to.y - from.y) * 2 / 5 + from.y);
+            graph_2d.drawString("" + e.weight(), (to.x - from.x) * 2 / 5 + from.x, (to.y - from.y) * 2 / 5 + from.y);
         }
         //работа с цветом
 
         //отображение вершин
         for (int i = 0; i < listOfVerteces.size(); i++) { //проход по всем вершинам
             Coordinates center = coordsOfVerteces.get(i);
-            Ellipse2D.Double v = new Ellipse2D.Double(center.x-17,center.y-13,35,35);
+            Ellipse2D.Double v = new Ellipse2D.Double(center.x - 17,center.y - 13,35,35);
             graph_2d.draw(v);
             graph_2d.setColor(Color.cyan);
             graph_2d.fill(v);
             graph_2d.setColor(oldColor);
-            graph_2d.drawString(""+listOfVerteces.get(i), center.x-5, center.y+10);
+            graph_2d.drawString("" + listOfVerteces.get(i), center.x - 5, center.y + 10);
         }
     }
     private void arrangement() { //расстановка вершин/рёбер графа
@@ -82,8 +83,8 @@ public class GraphVizualizer extends JPanel {
     }
     public void setMSTEdges(LinkedList<Edge> edges){
         listOfEdgesOfMSTStep = edges;
-        this.revalidate();
-        this.repaint();
+        revalidate();
+        repaint();
     }
     private Integer find(Point2D cursorPosition){
         for(Coordinates center : coordsOfVerteces) {
@@ -101,12 +102,11 @@ public class GraphVizualizer extends JPanel {
     private class MyMove implements MouseMotionListener {
         @Override
         public void mouseMoved(MouseEvent e) {
-            if(find(e.getPoint()) == null)
-                setCursor(Cursor.getDefaultCursor());
+            if(find(e.getPoint()) != null)
+                setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR)); //
             else
-                setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                setCursor(Cursor.getDefaultCursor());
         }
-
         @Override
         public void mouseDragged(MouseEvent e) {
             if(indexOfSelectedVertex != null){
